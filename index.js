@@ -14,6 +14,10 @@ io.on('connection', (socket) => {
     playerConnect(msg)
   })
 
+  socket.on('playerDisconnect', (msg) => {
+    playerDisconnect(msg)
+  })
+
   socket.on('playerIsDead', (msg) => {
     playerIsDead(msg)
   })
@@ -37,7 +41,7 @@ function playerConnect (msg) {
 
     if (players.length < 2) {
         players.push(player)
-        console.log("players", players)
+        console.log("playersAfterConnection", players)
     } 
     
     if (players.length == 2) {
@@ -45,11 +49,25 @@ function playerConnect (msg) {
     }
 }
 
+function playerDisconnect (msg) {
+  let player = JSON.parse(msg.player)  
+  if (players.length === 2) {
+    players = []
+    deadPlayers = []
+    players.push(player)
+  } else if (players.length === 1) {
+    players.push(player)
+  }
+}
+
 function playerIsDead (msg) {
     let player = JSON.parse(msg.player)
     deadPlayers.push(player)
+    console.log('deadPlayers', deadPlayers)
     if (deadPlayers.length == 2) {
-        io.emit("winnerIs", deadPlayers[1].id)
+      console.log("winnerIs call")
+      io.emit("winnerIs", deadPlayers[1].id)
+      deadPlayers = []
     }
 }
 
